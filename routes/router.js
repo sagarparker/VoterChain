@@ -4,6 +4,8 @@ const app           =   express();
 const cors          =   require("cors");
 const path          =   require('path');
 
+const twilioVerification    =   require('./api/twilioVerification');
+
 
 //BODY PARSER PRESET
 
@@ -42,6 +44,11 @@ app.use((req, res, next) => {
         next();
     }
 });
+
+
+// Twilio Verification
+
+app.use('/api',twilioVerification);
 
 
 
