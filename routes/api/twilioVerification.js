@@ -1,6 +1,7 @@
 const express = require('express')
 const router  = express.Router();
 const { body, validationResult } = require("express-validator");
+const { votersData } = require('./voterDetails')
 require('dotenv').config();
 
 const accountSid = process.env.TWILIO_ACCOUNT_SID;
@@ -10,11 +11,10 @@ const client = require('twilio')(accountSid, authToken);
 
 //Sending OTP via twilio to users phone no
 
-router.post('/sendOTP',
-    body('phone_no').not().isEmpty(),
+router.post('/sendOtpForlogin',
+    body('voter_id').not().isEmpty(),
     async (req,res)=>{
         try{
-
             // Input field validation
 
             const errors = validationResult(req);
@@ -24,10 +24,22 @@ router.post('/sendOTP',
                 });
             }
 
+
+            //Checkin if the voter_id is valid
+
+            const voter_id = req.body.voter_id;
+            
+            if(!votersData.hasOwnProperty(voter_id)){
+                return res.status(404).json({
+                    result      :   false,
+                    msg         :   "Voter ID is invalid"
+                })
+            }
+
             //Generating an service id
             const service       =   await client.verify.services.create({friendlyName: 'VoterChain'})
             const serviceID     =   service.sid;
-            const userPhoneNo   =   req.body.phone_no;
+            const userPhoneNo   =   votersData[voter_id];
 
 
             //Sending OTP
@@ -37,13 +49,14 @@ router.post('/sendOTP',
                 res.status(200).json({
                     result      :   true,
                     serviceID   :   serviceID,
-                    msg         :   "OTP sent to the user"
+                    phone_no    :   votersData[voter_id],
+                    msg         :   "OTP sent to your registered phone no."
                 })
             }
             else{
                 res.status(400).json({
                     result:false,
-                    msg:"There was a problem sending an otp to the user."
+                    msg:"There was a problem sending an otp."
                 })
             }
         }
@@ -51,7 +64,7 @@ router.post('/sendOTP',
             console.log(err);
             return res.status(500).json({
                 result:false,
-                msg:"Failed to send an otp to the user"
+                msg:"Failed to send an otp."
             })
         }
 });
@@ -59,7 +72,7 @@ router.post('/sendOTP',
 
 //Verifying OTP submited by the user.
 
-router.post('/verifyOTP',
+router.post('/verifyOtpForLogin',
     body('phone_no').not().isEmpty(),
     body('otp').not().isEmpty(),    
     body('serviceID').not().isEmpty(),
@@ -86,13 +99,15 @@ router.post('/verifyOTP',
             if(verification.status == 'approved' && verification.valid == true){
                 res.status(200).json({
                     result      :   true,
-                    msg         :   "OTP verified"
+                    msg         :   "OTP verified",
+                    otpVerified :   true    
                 })
             }
             else{
                 res.status(400).json({
-                    result  :   false,
-                    msg     :   "OTP is not valid."
+                    result      :   false,
+                    msg         :   "OTP is not valid.",
+                    otpVerified :   false
                 })
             }
         }

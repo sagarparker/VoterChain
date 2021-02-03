@@ -1,0 +1,57 @@
+.mainDiv{
+    width: 100vw;
+    height: 100vh;
+    overflow: hidden;
+}
+    
+.imageDiv{
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    background-color: rgb(255, 208, 0);
+}
+
+.landingPageImage{
+    height: 100vh;
+}
+
+
+.contentDiv{
+    height: 100vh;
+    background-color: rgb(255, 208, 0);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.formDiv{
+    width   :   25vw;
+    height  :   30vh;
+    padding :   30px;
+    background-color: whitesmoke;
+    border-radius: 30px;
+}
+
+.inputfield{
+    width: 100%;
+    border:none;
+    padding: 10px;
+    border-radius: 30px;
+    outline: none!important;
+    text-align: center;
+}
+
+.submitBtn{
+    margin-top: 2vh;
+    width: 100%;
+    border:none;
+    padding: 10px;
+    border-radius: 30px;
+    outline: none!important;
+    background-color:  rgb(255, 208, 0);
+    transition: all 0.2s;
+}
+
+.submitBtn:hover{
+    background-color:  rgb(255, 174, 0)
+}
