@@ -1,17 +1,19 @@
 import React,{useState} from 'react'
 import {useHistory} from 'react-router-dom';
+import Navbar from '../navbar/Navbar'
 import './LandingPage.css'
 import axios from 'axios';
 
 
 export default function LandingPage() {
     const history = useHistory();
-    const[voterID,setVoterID] = useState('');
-    const[serviceID,setServiceID] = useState('');
-    const[userPhoneNo,setUserPhoneNo] = useState('');
-    const[msg,setMsg] = useState('');
-    const[sendOtpResult,setSendOtpResult] = useState(false);
-    const[otp,setOtp] = useState('');
+    
+    const[voterID,setVoterID]               =   useState('');
+    const[serviceID,setServiceID]           =   useState('');
+    const[userPhoneNo,setUserPhoneNo]       =   useState('');
+    const[msg,setMsg]                       =   useState('');
+    const[sendOtpResult,setSendOtpResult]   =   useState(false);
+    const[otp,setOtp]                       =   useState('');
 
     //Send OTP 
     const sendOTP = (event) =>{
@@ -43,7 +45,7 @@ export default function LandingPage() {
           .then(response =>  {
             setMsg(response.data.msg);
             if(response.data.otpVerified){
-                sessionStorage.setItem('voterID',voterID);
+                localStorage.setItem('voterID',voterID);
                 history.push("/votingPage");
             }
             
@@ -57,6 +59,7 @@ export default function LandingPage() {
 
     return (
         <div className="mainDiv">
+            <Navbar/>
             <div className="row">
                 <div className="col-7 imageDiv">
                     <img src="/landingPage.jpg" alt="LandingPageImage" className="landingPageImage" />

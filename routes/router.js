@@ -5,6 +5,7 @@ const cors          =   require("cors");
 const path          =   require('path');
 
 const twilioVerification    =   require('./api/twilioVerification');
+const votingAPI             =   require('./api/votingAPI');
 
 
 //BODY PARSER PRESET
@@ -49,6 +50,11 @@ app.use((req, res, next) => {
 // Twilio Verification
 
 app.use('/api',twilioVerification);
+
+
+//Voting APIs
+
+app.use('/api',votingAPI);
 
 
 
