@@ -8,6 +8,7 @@ const { votersData } = require('./voterDetails');
 const {Block,Blockchain} = require('./blockchain');
 
 //Creating  a new instance of the blockchain
+
 const VoterChain = new Blockchain();
 console.log("\nGenesis Block : "+JSON.stringify(VoterChain)+"\n");
 
@@ -35,16 +36,6 @@ router.post('/vote',
             const party     =   req.body.party;
             const voterID   =   req.body.voterID;
 
-            
-            //Creating a ledger of people who voted
-            for(index in VoterChain.chain){
-                let voterID = VoterChain.chain[index].data.voterID.toString();
-                if(!peopleWhoVoted.hasOwnProperty(voterID)){
-                    peopleWhoVoted[voterID] = moment().format('MMMM Do YYYY, h:mm:ss a')
-                }
-            }
-
-
             //Checking if the user has voted before
 
             //If the user has not voted before
@@ -52,6 +43,10 @@ router.post('/vote',
 
                 //Incrementing the votes count
                 votesCount++;
+
+                //Adding the voterId of the voters who have not voted yet
+                peopleWhoVoted[voterID] = moment().format('MMMM Do YYYY, h:mm:ss a')
+
 
                 //Adding new vote to blockchain
                 VoterChain.addBlock(new 
@@ -92,13 +87,47 @@ router.post('/vote',
 });
 
 
-router.get('/getAllVotes',
+//Check if the voter has voted before
+
+router.post('/checkIfVotedBefore',
+    body('voterID').not().isEmpty(),
     (req,res)=>{
-        const total_votes = [];
-        for(index in VoterChain.chain){
-            total_votes.push(VoterChain.chain[index].data.vote)
+        try{
+
+            // Input field validation
+
+            const errors = validationResult(req);
+            if (!errors.isEmpty()) {
+                return res.status(422).json({
+                error: errors.array()[0],
+                });
+            }
+
+            const voterID = req.body.voterID;
+
+            //Check if the voter has voted before
+
+            if(peopleWhoVoted.hasOwnProperty(voterID)){
+                return res.status(200).json({
+                    hasVotedBefore:true,
+                    msg:"The user has voted before"
+                })
+            }
+            else{
+                return res.status(200).json({
+                    hasVotedBefore:false,
+                    msg:"The user has not voted before"
+                })
+            }
         }
-        console.log(total_votes);
+        catch(err){
+            return res.status(500).json({
+                result:false,
+                msg:"There was a problem fetching users voting data"
+            })
+        }
+
+
 });
 
 

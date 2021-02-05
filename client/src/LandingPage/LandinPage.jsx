@@ -4,6 +4,7 @@ import Navbar from '../navbar/Navbar'
 import './LandingPage.css'
 import axios from 'axios';
 
+///// DONT FORGET TO CHANGE TO SESSION STORAGE SAAGAAAA//////
 
 export default function LandingPage() {
     const history = useHistory();
@@ -45,7 +46,7 @@ export default function LandingPage() {
           .then(response =>  {
             setMsg(response.data.msg);
             if(response.data.otpVerified){
-                localStorage.setItem('voterID',voterID);
+                sessionStorage.setItem('voterID',voterID);
                 history.push("/votingPage");
             }
             

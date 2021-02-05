@@ -1,0 +1,47 @@
+.mainDiv2{
+    overflow: hidden !important;
+    height: 100vh;
+    width: 100vw;
+}
+
+.imageDiv2{
+    height: 100vh;
+    background-color: white;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.contentDiv2{
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.partyRow{
+    margin-top: -2vh;
+    width: 14vw;
+    height: 12vh;
+    background-color: gainsboro;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 4vh;
+    border-radius: 10px;
+    margin-right: 1vw;
+}
+
+.votingButton{
+    border:none;
+    padding: 10px 40px 10px 40px;
+    border-radius: 30px;
+    background-color: rgb(255, 208, 0);
+    font-weight: 500;
+    outline: none!important;
+    transition: all 0.2s
+}
+
+.votingButton:hover{
+    background-color: rgb(201, 165, 5);
+}
