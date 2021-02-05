@@ -47,10 +47,6 @@ const onError = error => {
 };
 
 
-
-
-
-
 // Server setup
 
 const onListening = () => {

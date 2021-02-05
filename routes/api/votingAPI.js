@@ -10,7 +10,10 @@ const {Block,Blockchain} = require('./blockchain');
 //Creating  a new instance of the blockchain
 const VoterChain = new Blockchain();
 console.log("\nGenesis Block : "+JSON.stringify(VoterChain)+"\n");
+
 let votesCount = 0;
+const peopleWhoVoted = {};
+
 
 
 // Add a new vote to the blockchain
@@ -18,7 +21,7 @@ let votesCount = 0;
 router.post('/vote',
     [body('party').not().isEmpty(),
     body('voterID').not().isEmpty()],
-    async (req,res)=>{
+    (req,res)=>{
         try{
             // Input field validation
 
@@ -32,12 +35,36 @@ router.post('/vote',
             const party     =   req.body.party;
             const voterID   =   req.body.voterID;
 
-            //Incrementing the votes count
-            votesCount++;
+            
+            //Creating a ledger of people who voted
+            for(index in VoterChain.chain){
+                let voterID = VoterChain.chain[index].data.voterID.toString();
+                if(!peopleWhoVoted.hasOwnProperty(voterID)){
+                    peopleWhoVoted[voterID] = moment().format('MMMM Do YYYY, h:mm:ss a')
+                }
+            }
 
-            //Adding new vote to blockchain
-            VoterChain.addBlock(new 
-                Block(votesCount,moment().format('MMMM Do YYYY, h:mm:ss a'),{voterID:voterID,vote:party}));
+
+            //Checking if the user has voted before
+
+            //If the user has not voted before
+            if(!peopleWhoVoted.hasOwnProperty(voterID)){
+
+                //Incrementing the votes count
+                votesCount++;
+
+                //Adding new vote to blockchain
+                VoterChain.addBlock(new 
+                    Block(votesCount,moment().format('MMMM Do YYYY, h:mm:ss a'),{voterID:voterID,vote:party}));    
+            }
+
+            //If the voter has voted before
+            else{
+                return res.status(400).json({
+                        result:false,
+                        msg:"The user has already voted"
+                })
+            }
             
             //Checking if the blockchain is valid
             if(VoterChain.isChainValid()){
@@ -61,6 +88,16 @@ router.post('/vote',
             })
         }
 
+});
+
+
+router.get('/getAllVotes',
+    (req,res)=>{
+        const total_votes = [];
+        for(index in VoterChain.chain){
+            total_votes.push(VoterChain.chain[index].data.vote)
+        }
+        console.log(total_votes);
 });
 
 
