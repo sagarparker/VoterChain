@@ -2,6 +2,8 @@ import React,{useState,useEffect} from 'react'
 import Navbar from '../navbar/Navbar'
 import './VotingPage.css'
 import axios from 'axios';
+import Swal from 'sweetalert2';
+
 
 export default function VotingPage() {
     const[vote,setVote] = useState('');
@@ -34,6 +36,11 @@ export default function VotingPage() {
           .then(response =>  {
             setMsg(response.data.msg);
             if(response.data.result){
+              Swal.fire(
+                'Vote Registered',
+                'Thanks for voting!',
+                'success'
+              )
                 setVotingStatus(true);
             }
           })
@@ -47,13 +54,13 @@ export default function VotingPage() {
             <Navbar/>
               <div className="row">
                 <div className="col-6 imageDiv2">
-                    <img src="/voting.jpg" width="700" height="420" alt="VoingPage"/>
                 </div>
                 <div className="col-6 contentDiv2">
                   {
                     !hasVoted && !votingStatus ?
-
-                    <form onSubmit={voteForParty}>
+                    <div>
+                      <form onSubmit={voteForParty}>
+                      
                       <div className="row">
                         <div className="col-6">
                           <div className="row partyRow">
@@ -67,12 +74,12 @@ export default function VotingPage() {
                         </div>
                         <div className="col-6">
                             <div className="row partyRow">
-                            <div className="col-4">
-                              <img src="./parties/aap.jpg" style={{borderRadius:50}} width="50" height="50" alt="" />
-                            </div>
-                            <div className="col-8">
-                              <button type="submit" className="votingButton" onClick={()=>setVote('AAP')}>AAP</button>
-                            </div>
+                              <div className="col-4">
+                                <img src="./parties/aap.jpg" style={{borderRadius:50}} width="50" height="50" alt="" />
+                              </div>
+                              <div className="col-8">
+                                <button type="submit" className="votingButton" onClick={()=>setVote('AAP')}>AAP</button>
+                              </div>
                           </div>
                         </div>
                       </div>
@@ -124,6 +131,9 @@ export default function VotingPage() {
                       </div>
                     
                     </form>
+                    </div>
+                    
+
 
                     :
 

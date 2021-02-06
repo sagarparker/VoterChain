@@ -110,7 +110,7 @@ router.post('/checkIfVotedBefore',
             if(peopleWhoVoted.hasOwnProperty(voterID)){
                 return res.status(200).json({
                     hasVotedBefore:true,
-                    msg:"The user has voted before"
+                    msg:"You have already voted"
                 })
             }
             else{
@@ -128,6 +128,43 @@ router.post('/checkIfVotedBefore',
         }
 
 
+});
+
+//Fetching the election result
+
+router.post('/votingResult',
+    (req,res)=>{
+        try{
+            let votingCounts = {
+                'BNP':0,
+                'AAP':0,
+                'BSN':0,
+                'INP':0,
+                'CIP':0,
+                'NCS':0
+            }
+
+            //Storing the votes in the votingCounts object
+            for(index in VoterChain.chain){
+                let vote = VoterChain.chain[index].data.vote;
+                if(vote != 'NA'){
+                    votingCounts[vote]++;
+                }
+            }
+
+            return res.status(200).json({
+                result:true,
+                msg:'Election result fetched',
+                data:votingCounts
+            });
+
+        }
+        catch(err){
+            return res.status(500).json({
+                result:false,
+                msg:"There was a problem fetching all the votes"
+            })
+        }
 });
 
 
