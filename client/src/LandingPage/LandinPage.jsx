@@ -1,6 +1,6 @@
 import React,{useState} from 'react'
 import {useHistory} from 'react-router-dom';
-import Navbar from '../navbar/Navbar'
+import Navbar from '../Navbar/Navbar'
 import './LandingPage.css'
 import axios from 'axios';
 

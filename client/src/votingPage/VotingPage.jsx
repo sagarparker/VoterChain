@@ -1,5 +1,5 @@
 import React,{useState,useEffect} from 'react'
-import Navbar from '../navbar/Navbar'
+import Navbar from '../Navbar/Navbar'
 import './VotingPage.css'
 import axios from 'axios';
 import Swal from 'sweetalert2';

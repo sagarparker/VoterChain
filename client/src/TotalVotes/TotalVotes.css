@@ -1,0 +1,47 @@
+.mainDiv{
+    height: 100vh;
+    width: 100vw;
+}
+
+.imageDiv3{
+    background-color:rgba(206,232,246,255);
+    background-image: url('../images/66082.jpg');
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: 90%;
+    height: 95vh;
+}
+
+.contentDiv3{
+    height: 92vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #ebebeb;
+}
+
+.votesTable{
+    width: 25vw;
+    font-size: 1.2rem;
+    box-shadow:  20px 20px 60px #bebebe,
+                    -20px -20px 60px #ffffff;
+}
+
+.tableHeader{
+    height: 8vh;
+    background-color: rgb(224, 224, 224);
+    border-right: 1px solid rgb(187, 186, 186);
+    border-bottom: 1px solid gainsboro;
+    padding: 15px;
+    padding-left: 25px;
+    font-weight: 500;
+}
+
+.tableData{
+    height: 10.5vh;
+    padding: 15px;
+    padding-left: 25px;
+    background-color: white;
+    border-right: 1px solid gainsboro;
+    border-bottom: 1px solid gainsboro;
+}

@@ -132,7 +132,7 @@ router.post('/checkIfVotedBefore',
 
 //Fetching the election result
 
-router.post('/votingResult',
+router.get('/votingResult',
     (req,res)=>{
         try{
             let votingCounts = {

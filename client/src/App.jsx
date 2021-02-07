@@ -1,6 +1,7 @@
 import {Route,Switch,Redirect} from 'react-router-dom';
 import LandingPage from './LandingPage/LandinPage';
-import VotingPage from './votingPage/VotingPage';
+import VotingPage from './VotingPage/VotingPage';
+import TotalVotes from './TotalVotes/TotalVotes';
 
 function App() {
   return (
@@ -8,6 +9,9 @@ function App() {
       <Switch>
         <Route exact path="/votingPage">
           <VotingPage/>
+        </Route>
+        <Route exact path="/totalVotes">
+          <TotalVotes/>
         </Route>
         <Route exact path="/home">
           <LandingPage/>
