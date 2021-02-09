@@ -1,19 +1,46 @@
-const express = require('express')
-const router  = express.Router();
-const moment = require('moment');
+const express   =   require('express')
+const router    =   express.Router();
+const moment    =   require('moment');
+const axios     =   require('axios');
 const { body, validationResult } = require("express-validator");
 require('dotenv').config();
 
 const { votersData } = require('./voterDetails');
 const {Block,Blockchain} = require('./blockchain');
 
+
 //Creating  a new instance of the blockchain
 
 const VoterChain = new Blockchain();
 console.log("\nGenesis Block : "+JSON.stringify(VoterChain)+"\n");
 
-let votesCount = 0;
 const peopleWhoVoted = {};
+
+
+// Socket IO 
+
+const io = require("socket.io")(5000);
+io.on("connection", (socket) => {
+
+  // On New connection
+  console.log('A new node connected : '+socket.id);
+
+  //Sending data to nodes and mining new block
+  socket.on("BlockMined", function(data){
+    const block = data;
+
+    //API call to add block to the blockchain
+    axios.post('http://localhost:8080/api/addBlock', {"block":block},{ validateStatus: false })
+          .then(response =>  {
+            console.log(response.data);
+            console.log("\nBlock added\n");
+            console.log(VoterChain);
+          })
+          .catch(function (error) {
+            console.log(error);
+          });
+  });
+});
 
 
 
@@ -22,7 +49,7 @@ const peopleWhoVoted = {};
 router.post('/vote',
     [body('party').not().isEmpty(),
     body('voterID').not().isEmpty()],
-    (req,res)=>{
+    async (req,res)=>{
         try{
             // Input field validation
 
@@ -41,16 +68,23 @@ router.post('/vote',
             //If the user has not voted before
             if(!peopleWhoVoted.hasOwnProperty(voterID)){
 
-                //Incrementing the votes count
-                votesCount++;
-
                 //Adding the voterId of the voters who have not voted yet
-                peopleWhoVoted[voterID] = moment().format('MMMM Do YYYY, h:mm:ss a')
+                peopleWhoVoted[voterID] = moment().format('MMMM Do YYYY, h:mm:ss a') 
 
+                //Emit the new block details to all the nodes
+                io.emit('MineBlock',
+                    {
+                    VoterChain:VoterChain,
+                    time:moment().format('MMMM Do YYYY, h:mm:ss a'),
+                    voterID:voterID,
+                    party:party
+                })
 
-                //Adding new vote to blockchain
-                VoterChain.addBlock(new 
-                    Block(votesCount,moment().format('MMMM Do YYYY, h:mm:ss a'),{voterID:voterID,vote:party}));    
+                return res.status(200).json({
+                    result:true,
+                    msg:"Your vote has been registered"
+                })
+
             }
 
             //If the voter has voted before
@@ -61,20 +95,6 @@ router.post('/vote',
                 })
             }
             
-            //Checking if the blockchain is valid
-            if(VoterChain.isChainValid()){
-                return res.status(200).json({
-                    result:true,
-                    msg:"Your vote has been registered",
-                    currentVoterChain:VoterChain
-                })
-            }
-            else{
-                return res.status(400).json({
-                    result:false,
-                    msg:"The blockchain has been tampered"
-                })
-            } 
         }
         catch(err){
             console.log(err);
@@ -85,6 +105,41 @@ router.post('/vote',
         }
 
 });
+
+
+
+
+//Adding block to the blockchain
+
+router.post('/addBlock',(req,res)=>{
+    try{
+        const block = req.body.block;
+        VoterChain.addBlock(block);
+
+        //Checking if the blockchain is valid
+        if(!VoterChain.isChainValid()){
+            return res.status(400).json({
+                result:false,
+                msg:"The blockchain has been tampered"
+            })
+        }
+        else{
+            return res.status(200).json({
+                result:true,
+                msg:"Block added to the blockchain"
+            })
+        }
+    }
+    catch(err){
+        console.log(err);
+        return res.status(500).json({
+            result:false,
+            msg:"There was a problem adding block to the VoterChain"
+        })
+    }
+})
+
+
 
 
 //Check if the voter has voted before
@@ -121,6 +176,7 @@ router.post('/checkIfVotedBefore',
             }
         }
         catch(err){
+            console.log(err);
             return res.status(500).json({
                 result:false,
                 msg:"There was a problem fetching users voting data"

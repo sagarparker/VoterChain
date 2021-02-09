@@ -2,8 +2,7 @@ const SHA256 = require('crypto-js/sha256');
 const moment = require('moment');
 
 class Block{
-    constructor(index,timestamp,data,previousHash = ""){
-        this.index          =   index;
+    constructor(timestamp,data,previousHash = ""){
         this.timestamp      =   timestamp;
         this.data           =   data;
         this.previousHash   =   previousHash;
@@ -12,7 +11,7 @@ class Block{
     }
 
     calculateHash(){
-        return SHA256( this.index + this.timestamp + this.previousHash + this.nonce +JSON.stringify(this.data) ).toString();
+        return SHA256(this.timestamp + this.previousHash + this.nonce +JSON.stringify(this.data) ).toString();
     }
 
     //Proof of Work
@@ -34,24 +33,34 @@ class Blockchain{
     }
 
     createGenesisBlock(){
-        return new Block(0, moment().format('MMMM Do YYYY, h:mm:ss a'),{voterID:'Genesis Block',vote:'NA'}, "0");
+        return new Block(moment().format('MMMM Do YYYY, h:mm:ss a'),{voterID:'Genesis Block',vote:'NA'}, "0");
     }
 
     getLatestBlock(){
         return this.chain[this.chain.length -1];
     }
 
-    addBlock(newBlock){
+
+    computeBlock(newBlock){
         newBlock.previousHash = this.getLatestBlock().hash;
         newBlock.mineBlock(this.difficulty);
-        this.chain.push(newBlock);
+        return newBlock;
+    }
+
+    addBlock(computedBlock){
+        this.chain.push(computedBlock);
     }
 
     isChainValid(){
         for(let i = 1; i < this.chain.length; i++){
             const currentBlock = this.chain[i];
             const previousBlock = this.chain[i-1];
-            if(currentBlock.hash !== currentBlock.calculateHash()){
+
+            function calculateHash(){
+                return SHA256(currentBlock.timestamp + currentBlock.previousHash + currentBlock.nonce +JSON.stringify(currentBlock.data)).toString();
+            }
+
+            if(currentBlock.hash !== calculateHash()){
                 return false
             }
 
@@ -66,6 +75,11 @@ class Blockchain{
 module.exports.Block        =   Block;        
 module.exports.Blockchain   =   Blockchain;
 
+
+
+
+
+// const voteChain = new Blockchain();
 // voteChain.addBlock(new Block(1,moment().format('MMMM Do YYYY, h:mm:ss a'),{voterID:'SOK6723439',vote:'NOTA'}));
 // voteChain.addBlock(new Block(2,moment().format('MMMM Do YYYY, h:mm:ss a'),{voterID:'SOK6723455',vote:'BJP'}));
 // console.log("Is voter chain valid :",voteChain.isChainValid());
