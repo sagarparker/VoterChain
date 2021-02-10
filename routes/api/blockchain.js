@@ -18,6 +18,7 @@ class Block{
     mineBlock(difficulty){
 
         while(this.hash.substring(0, difficulty) !== Array(difficulty + 1).join("0")){
+
             this.nonce++;
             this.hash = this.calculateHash();
         }
@@ -29,7 +30,7 @@ class Block{
 class Blockchain{
     constructor(){
         this.chain = [this.createGenesisBlock()];
-        this.difficulty = 3;
+        this.difficulty = 2;
     }
 
     createGenesisBlock(){
@@ -75,12 +76,3 @@ class Blockchain{
 module.exports.Block        =   Block;        
 module.exports.Blockchain   =   Blockchain;
 
-
-
-
-
-// const voteChain = new Blockchain();
-// voteChain.addBlock(new Block(1,moment().format('MMMM Do YYYY, h:mm:ss a'),{voterID:'SOK6723439',vote:'NOTA'}));
-// voteChain.addBlock(new Block(2,moment().format('MMMM Do YYYY, h:mm:ss a'),{voterID:'SOK6723455',vote:'BJP'}));
-// console.log("Is voter chain valid :",voteChain.isChainValid());
-// console.log(voteChain);

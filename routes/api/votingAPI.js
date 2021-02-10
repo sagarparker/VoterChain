@@ -6,8 +6,7 @@ const { body, validationResult } = require("express-validator");
 require('dotenv').config();
 
 const { votersData } = require('./voterDetails');
-const {Block,Blockchain} = require('./blockchain');
-
+const { Block,Blockchain } = require('./blockchain');
 
 //Creating  a new instance of the blockchain
 
@@ -15,32 +14,52 @@ const VoterChain = new Blockchain();
 console.log("\nGenesis Block : "+JSON.stringify(VoterChain)+"\n");
 
 const peopleWhoVoted = {};
-
+globalThis.noOfNodes = 0;
 
 // Socket IO 
 
 const io = require("socket.io")(5000);
 io.on("connection", (socket) => {
 
-  // On New connection
+  // When a new node connects to the network
   console.log('A new node connected : '+socket.id);
+  globalThis.noOfNodes++
+
+  socket.on("disconnect", () => {
+    // When a node gets disconnected
+    console.log('A node disconnected : '+socket.id);
+    globalThis.noOfNodes--
+  });
 
   //Sending data to nodes and mining new block
   socket.on("BlockMined", function(data){
     const block = data;
 
-    //API call to add block to the blockchain
-    axios.post('http://localhost:8080/api/addBlock', {"block":block},{ validateStatus: false })
-          .then(response =>  {
-            console.log(response.data);
-            console.log("\nBlock added\n");
-            console.log(VoterChain);
-          })
-          .catch(function (error) {
-            console.log(error);
-          });
+    //Sending the block that is mine to validate in the network
+    socket.emit("validateBlock",block,VoterChain);
+
+
   });
+
+  //Checking the validation status of block 
+  socket.on("BlockIsValid",function(status,block){
+      console.log(status);
+      if(status){
+        //API call to add block to the blockchain
+        axios.post('http://localhost:8080/api/addBlock', {"block":block},{ validateStatus: false })
+            .then(response =>  {
+                console.log(response.data);
+                console.log("\n\n\nBlock added\n");
+                console.log("\n\nUpdated VoterChain : \n\n")
+                console.log(VoterChain);
+            })
+            .catch(function (error) {
+                console.log(error);
+            });
+      }
+  })
 });
+
 
 
 
@@ -51,6 +70,7 @@ router.post('/vote',
     body('voterID').not().isEmpty()],
     async (req,res)=>{
         try{
+
             // Input field validation
 
             const errors = validationResult(req);
@@ -71,7 +91,7 @@ router.post('/vote',
                 //Adding the voterId of the voters who have not voted yet
                 peopleWhoVoted[voterID] = moment().format('MMMM Do YYYY, h:mm:ss a') 
 
-                //Emit the new block details to all the nodes
+                //Emit the new block details to all the nodes in the network
                 io.emit('MineBlock',
                     {
                     VoterChain:VoterChain,
