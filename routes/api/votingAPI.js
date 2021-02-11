@@ -26,8 +26,8 @@ io.on("connection", (socket) => {
     globalThis.noOfNodes++
 
     socket.on("disconnect", () => {
-    // When a node gets disconnected
-    console.log('A node disconnected : '+socket.id);
+        // When a node gets disconnected
+        console.log('A node disconnected : '+socket.id);
         globalThis.noOfNodes--
     });
 
@@ -136,7 +136,6 @@ router.post('/vote',
 router.post('/addBlock',(req,res)=>{
     try{
         const block = req.body.block;
-        console.log(block);
         const latestBlock = VoterChain.getLatestBlock();
 
         //Checking if the block is valid
