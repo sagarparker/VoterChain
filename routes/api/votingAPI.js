@@ -21,43 +21,46 @@ globalThis.noOfNodes = 0;
 const io = require("socket.io")(5000);
 io.on("connection", (socket) => {
 
-  // When a new node connects to the network
-  console.log('A new node connected : '+socket.id);
-  globalThis.noOfNodes++
+    // When a new node connects to the network
+    console.log('A new node connected : '+socket.id);
+    globalThis.noOfNodes++
 
-  socket.on("disconnect", () => {
+    socket.on("disconnect", () => {
     // When a node gets disconnected
     console.log('A node disconnected : '+socket.id);
-    globalThis.noOfNodes--
-  });
+        globalThis.noOfNodes--
+    });
 
-  //Sending data to nodes and mining new block
-  socket.on("BlockMined", function(data){
+    //Sending data to nodes and mining new block
+    socket.on("BlockMined", function(data){
     const block = data;
 
-    //Sending the block that is mine to validate in the network
-    socket.emit("validateBlock",block,VoterChain);
+        //Sending the block that is mine to validate in the network
+        socket.emit("validateBlock",block,VoterChain);
 
 
-  });
+    });
 
-  //Checking the validation status of block 
-  socket.on("BlockIsValid",function(status,block){
-      console.log(status);
-      if(status){
+    //Checking the validation status of block 
+    socket.on("BlockIsValid",function(status,block){
+        if(status){
         //API call to add block to the blockchain
         axios.post('http://localhost:8080/api/addBlock', {"block":block},{ validateStatus: false })
             .then(response =>  {
+                console.log("\n\n\n\n")
                 console.log(response.data);
-                console.log("\n\n\nBlock added\n");
                 console.log("\n\nUpdated VoterChain : \n\n")
                 console.log(VoterChain);
             })
             .catch(function (error) {
                 console.log(error);
             });
-      }
-  })
+        }
+        else{
+            console.log("\n\nBlock is not valid anymore : "+block.hash)
+        }
+        
+    })
 });
 
 
@@ -92,8 +95,7 @@ router.post('/vote',
                 peopleWhoVoted[voterID] = moment().format('MMMM Do YYYY, h:mm:ss a') 
 
                 //Emit the new block details to all the nodes in the network
-                io.emit('MineBlock',
-                    {
+                io.emit('MineBlock',{
                     VoterChain:VoterChain,
                     time:moment().format('MMMM Do YYYY, h:mm:ss a'),
                     voterID:voterID,
@@ -134,7 +136,17 @@ router.post('/vote',
 router.post('/addBlock',(req,res)=>{
     try{
         const block = req.body.block;
-        VoterChain.addBlock(block);
+        console.log(block);
+        const latestBlock = VoterChain.getLatestBlock();
+
+        //Checking if the block is valid
+        if(block.previousHash !== latestBlock.hash){
+            console.log("Here");
+            return res.status(400).json({
+                result:false,
+                msg:"The block has already been added"
+            })
+        }
 
         //Checking if the blockchain is valid
         if(!VoterChain.isChainValid()){
@@ -144,6 +156,7 @@ router.post('/addBlock',(req,res)=>{
             })
         }
         else{
+            VoterChain.addBlock(block);
             return res.status(200).json({
                 result:true,
                 msg:"Block added to the blockchain"
