@@ -57,7 +57,7 @@ io.on("connection", (socket) => {
             });
         }
         else{
-            console.log("\n\nBlock is not valid anymore : "+block.hash)
+            console.log("\n\nBlock is not valid anymore: "+block.hash)
         }
         
     })
