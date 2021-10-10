@@ -1,5 +1,5 @@
 # VoterChain
-A decentralized voting system made by implementing Blockchain,React and Node.js .
+A decentralized voting system made by implementing core blockchain concepts,React and Node.js .
 
 
 ## Home screen
